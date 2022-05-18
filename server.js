@@ -10,9 +10,13 @@ const express = require('express');
 
 let data = require('./data/weather.json');
 
+const cors = require('cors');
+
 require('dotenv').config();
 // USE
 const app = express();
+
+app.use(cors());
 
 const PORT = process.env.PORT || 3002;
 
@@ -32,27 +36,31 @@ app.get('/hello', (req,res) => {
 app.get('/weather', (req,res) => {
     // query parameters here?
     try {
-        let selectedCity = data.find( (location) => 
-            location.city_name === req.query.city_name);
+        let selectedCity = data.find( (location) => location.city_name === req.query.city_name)
 
-        // res.send(`${selectedCity.city_name}`);
+
+
         let dataToSend = selectedCity.data.map( (day) => {
             return new Forecast(day);
         });
-        console.log(dataToSend);
         res.send(dataToSend);
     } catch (error) {
         // add error catch later
+        next(error);
         console.log(error);
     }
 })
 
 // catch all "star route"
 app.get('*', (req, res) => {
-    res.send('Error 404');
+    res.status(404).send('Not Found')
 })
 
 // ERRORS
+app.use((error, req, res, next) => {
+    console.log(error.message)
+    response.status(500).send(error.message)
+});
 
 // CLASSES 
 class Forecast {
