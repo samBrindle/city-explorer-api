@@ -2,17 +2,18 @@
 
 console.log('Our first server');
 
-const { response } = require('express');
+require('dotenv').config();
+const cors = require('cors');
+const express = require('express');
+// const { response } = require('express');
+const axios = require('axios');
 // REQUIRE
 // things we need to build a server
 
-const express = require('express');
 
 let data = require('./data/weather.json');
 
-const cors = require('cors');
 
-require('dotenv').config();
 // USE
 const app = express();
 
