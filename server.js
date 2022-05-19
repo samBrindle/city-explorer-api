@@ -59,13 +59,13 @@ app.get('/weather', async (req,res, next) => {
     }
 })
 
-app.get('/movies', async (req,res,next) => {
-    try {
-        let searchCity = req.query.city_name;
+// app.get('/movies', async (req,res,next) => {
+//     try {
+//         let searchCity = req.query.city_name;
 
-        let url 
-    }
-});
+//         let url 
+//     }
+// });
 
 // catch all "star route"
 app.get('*', (req, res) => {
