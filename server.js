@@ -45,13 +45,6 @@ app.get('/weather', async (req,res, next) => {
 
         console.log(dataToSend);
         res.send(dataToSend);
-
-        // let selectedCity = data.find( (location) => location.city_name === req.query.city_name)
-
-        // let dataToSend = selectedCity.data.map( (day) => {
-        //     return new Forecast(day);
-        // });
-        // res.send(dataToSend);
     } catch (error) {
         // add error catch later
         next(error);
@@ -59,13 +52,25 @@ app.get('/weather', async (req,res, next) => {
     }
 })
 
-// app.get('/movies', async (req,res,next) => {
-//     try {
-//         let searchCity = req.query.city_name;
+app.get('/movies', async (req,res,next) => {
+    try {
+        let searchCity = req.query.city_name;
 
-//         let url 
-//     }
-// });
+        let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${searchCity}`
+
+        let results = await axios.get(url);
+
+        let dataToSend = results.data.results.map( movie => {
+            return new Movie(movie);
+        });
+
+        console.log(results.data.results);
+        res.send(dataToSend);
+    } catch (error) {
+        next(error);
+        console.log(error);
+    }
+});
 
 // catch all "star route"
 app.get('*', (req, res) => {
@@ -88,19 +93,17 @@ class Forecast {
     }
 }
 
-/*
 class Movie {
-    constructor(movieObject???) {
+    constructor(movieObject) {
         this.title = movieObject.original_title;
         this.overview = movieObject.overview;
         this.avg_votes = movieObject.vote_average;
         this.vote_count = movieObject.vote_count;
-        this.img_url = movieObject.poster_path;
+        this.img_url = "https://image.tmdb.org/t/p/w500"  + movieObject.poster_path;
         this.popularity = movieObject.popularity;
         this.released_on = movieObject.release_date;
     }
 }
-*/
 
 // LISTEN
 // start the server
