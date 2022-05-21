@@ -2,20 +2,37 @@
 
 const axios = require('axios');
 
+let cache = {};
+
+module.exports = getMovies;
+
 async function getMovies(req,res,next) {
     try {
         let searchCity = req.query.city_name;
 
-        let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${searchCity}`
+        let key = searchCity + 'Data'
 
-        let results = await axios.get(url);
+        let timeOkToCache = 1000 * 60 * 60 * 24 * 30;
+        // let timeOkToCacheTest = 1000 * 20;
+        if(cache[key] && (Date.now() - cache[key].timestamp < timeOkToCache)) {
+            console.log("you already made this request");
+            res.status(200).send(cache[key].data);
+        } else {
+            console.log('new search request');
+            let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${searchCity}`
 
-        let dataToSend = results.data.results.map( movie => {
-            return new Movie(movie);
-        });
+            let results = await axios.get(url);
 
-        console.log(results.data.results);
-        res.status(200).send(dataToSend);
+            let dataToSend = results.data.results.map( movie => {
+                return new Movie(movie);
+            });
+
+            cache[key] = {
+                data:dataToSend,
+                timestamp: Date.now()
+            }
+            res.status(200).send(dataToSend);
+        }
     } catch (error) {
         next(error);
         console.log(error);
