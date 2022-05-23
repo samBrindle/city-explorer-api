@@ -1,27 +1,38 @@
-'use strict'
+'use strict';
 
+let cache = require('./cache.js');
 const axios = require('axios');
+const res = require('express/lib/response');
 
-async function getWeather(req,res, next) {
-    // query parameters here?
+module.exports = getWeather;
+
+async function getWeather(latitude, longitude) {
+
+    const key = 'weather-' + latitude + longitude;
+    const url = `http://api.weatherbit.io/v2.0/forecast/daily?&lat=${latitude}&lon=${longitude}&key=${process.env.WEATHER_API_KEY}&days=5`;
+
+    if (cache[key] && (Date.now() - cache[key].timestamp < 50000)) {
+        console.log('Cache hit');
+        res.status(200).send(cache[key].data);
+    } else {
+        console.log('Cache miss');
+        cache[key] = {};
+        cache[key].timestamp = Date.now();
+        console.log(`here ${res.data}`);
+        cache[key].data = await axios.get(url).then(res => parseWeather());
+    }
+  
+    return cache[key].data;
+}
+
+function parseWeather(weatherData) {
     try {
-        let searchLon = req.query.lon;
-        let searchLat = req.query.lat;
-
-        let url =  `https://api.weatherbit.io/v2.0/forecast/daily?&lat=${searchLat}&lon=${searchLon}&key=${process.env.WEATHER_API_KEY}&units=I&days=5`
-
-        let results = await axios.get(url);
-        console.log(results.data.data[0]);
-        let dataToSend = results.data.data.map( day => {
-            return new Forecast(day);
+        const weatherSummaries = weatherData.data.map(day => {
+        return new Forecast(day);
         });
-
-        console.log(dataToSend);
-        res.send(dataToSend);
-    } catch (error) {
-        // add error catch later
-        next(error);
-        console.log(error);
+        return Promise.resolve(weatherSummaries);
+    } catch (e) {
+        return Promise.reject(e);
     }
 }
 
