@@ -6,7 +6,7 @@ const express = require('express');
 const axios = require('axios');
 const getMovies = require('./modules/movies');
 
-const weather = require('./modules/weather.js');
+const getWeather = require('./modules/weather.js');
 const app = express();
 app.use(cors());
 
@@ -16,8 +16,8 @@ app.get('/weather', weatherHandler);
 
 function weatherHandler(request, response) {
   const { lat, lon } = request.query;
-  console.log(lat);
-  weather(lat, lon)
+  console.log(lat,lon);
+  getWeather(lat, lon)
   .then(summaries => response.send(summaries))
   .catch((error) => {
     console.error(error);

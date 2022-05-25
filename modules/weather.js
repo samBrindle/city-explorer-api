@@ -18,8 +18,8 @@ async function getWeather(latitude, longitude) {
         console.log('Cache miss');
         cache[key] = {};
         cache[key].timestamp = Date.now();
+        cache[key].data = await axios.get(url).then(res => parseWeather(res.data));
         console.log(`here ${res.data}`);
-        cache[key].data = await axios.get(url).then(res => parseWeather());
     }
   
     return cache[key].data;
